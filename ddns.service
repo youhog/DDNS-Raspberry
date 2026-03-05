@@ -1,0 +1,14 @@
+[Unit]
+Description=Cloudflare DDNS Script
+After=network.target
+
+[Service]
+ExecStart=/path/to/your/folder/venv/bin/python /path/to/your/folder/cloudflare_ddns.py
+WorkingDirectory=/path/to/your/folder
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
