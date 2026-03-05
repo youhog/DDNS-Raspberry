@@ -11,7 +11,7 @@
 
 1. **複製專案到樹梅派**：
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/youhog/DDNS-Raspberry
    cd ddns
    ```
 
