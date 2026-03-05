@@ -31,7 +31,7 @@
 
 ## 定時執行 (Cron Job)
 
-建議設定每 5 或 10 分鐘執行一次腳本。
+建議設定每 5 或 10 分鐘執行一次腳本。`cron` 服務在系統開機後會自動啟動，因此腳本會按照排程自動執行。
 
 1. 打開 cron 編輯器：
    ```bash
@@ -40,9 +40,38 @@
 
 2. 在檔案末尾添加以下內容 (請將 `/path/to/ddns` 替換為您的實際路徑)：
    ```bash
+   # 每 5 分鐘執行一次
    */5 * * * * /path/to/ddns/venv/bin/python /path/to/ddns/cloudflare_ddns.py >> /dev/null 2>&1
+   
+   # 如果希望開機時立即執行一次，可加入這行：
+   @reboot /path/to/ddns/venv/bin/python /path/to/ddns/cloudflare_ddns.py >> /dev/null 2>&1
    ```
-   *這會每 5 分鐘執行一次，並自動使用虛擬環境中的 Python。*
+
+## 使用 Systemd 進行進階管理 (可選)
+
+如果您想將其作為系統服務管理（支援開機自啟、手動啟動/停止）：
+
+1. 編輯服務檔案：`sudo nano /etc/systemd/system/ddns.service`
+2. 填入以下內容 (修改路徑與用戶名)：
+   ```ini
+   [Unit]
+   Description=Cloudflare DDNS Service
+   After=network-online.target
+
+   [Service]
+   Type=oneshot
+   User=pi
+   WorkingDirectory=/path/to/ddns
+   ExecStart=/path/to/ddns/venv/bin/python /path/to/ddns/cloudflare_ddns.py
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+3. 啟用服務：
+   ```bash
+   sudo systemctl enable ddns.service
+   sudo systemctl start ddns.service
+   ```
 
 ## 查看日誌
 您可以隨時檢查 `ddns.log` 來確認運作狀態：
