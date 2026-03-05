@@ -103,7 +103,7 @@ def run_once():
     DEFAULT_ZONE_ID = os.getenv("ZONE_ID")
     entries = [e.strip() for e in RECORD_NAME.split(',')]
     
-    logger.info(f"--- 開始檢查 {len(entries)} 個域名項目 ---")
+    logger.info(f"--- 開始檢查 {len(entries)} 個域名項目 (目前公網 IP: {current_ip}) ---")
 
     for entry in entries:
         if ':' in entry:
@@ -124,7 +124,7 @@ def run_once():
             logger.info(f"偵測到 {domain} IP 變動: {record['content']} -> {current_ip}")
             update_dns_record(record['id'], domain, zone_id, current_ip)
         else:
-            logger.info(f"{domain} IP 未變動，無需更新。")
+            logger.info(f"{domain} IP 未變動 ({current_ip})，無需更新。")
 
 def main():
     if DOCKER_MODE:
