@@ -1,10 +1,11 @@
 import requests
 import os
+import time
 import logging
 from logging.handlers import RotatingFileHandler
 from dotenv import load_dotenv
 
-# 獲取腳本所在目錄，確保日誌和 .env 路徑正確
+# 獲取腳本所在目錄
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 load_dotenv(os.path.join(BASE_DIR, ".env"))
 
@@ -13,14 +14,16 @@ CF_API_TOKEN = os.getenv("CF_API_TOKEN")
 ZONE_ID = os.getenv("ZONE_ID")
 RECORD_NAME = os.getenv("RECORD_NAME")
 LOG_FILE = os.path.join(BASE_DIR, "ddns.log")
+CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", 300))
+DOCKER_MODE = os.getenv("DOCKER_MODE", "false").lower() == "true"
 
 # --- 日誌設定 ---
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        RotatingFileHandler(LOG_FILE, maxBytes=1024*1024, backupCount=3), # 限制日誌大小為 1MB，保留 3 份
-        logging.StreamHandler() # 同時輸出到控制台
+        RotatingFileHandler(LOG_FILE, maxBytes=1024*1024, backupCount=3),
+        logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
@@ -79,7 +82,7 @@ def update_dns_record(record_id, ip):
     except Exception as e:
         logger.error(f"發送更新請求失敗: {e}")
 
-def main():
+def run_once():
     logger.info(f"--- 開始檢查 {RECORD_NAME} ---")
     
     if not all([CF_API_TOKEN, ZONE_ID, RECORD_NAME]):
@@ -99,6 +102,15 @@ def main():
         update_dns_record(record['id'], current_ip)
     else:
         logger.info("IP 未變動，無需更新。")
+
+def main():
+    if DOCKER_MODE:
+        logger.info("以 Docker 循環模式啟動...")
+        while True:
+            run_once()
+            time.sleep(CHECK_INTERVAL)
+    else:
+        run_once()
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  ddns:
+    build: .
+    container_name: cloudflare-ddns
+    restart: always
+    env_file:
+      - .env
+    # 這裡我們手動掛載日誌到主機，方便查看
+    volumes:
+      - ./ddns.log:/app/ddns.log

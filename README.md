@@ -38,39 +38,44 @@
    crontab -e
    ```
 
-2. 在檔案末尾添加以下內容 (請將 `/path/to/ddns` 替換為您的實際路徑)：
+2. 在檔案末尾添加以下內容：
    ```bash
    # 每 5 分鐘執行一次
-   */5 * * * * /path/to/ddns/venv/bin/python /path/to/ddns/cloudflare_ddns.py >> /dev/null 2>&1
+   */5 * * * * /home/pi/DDNS-Raspberry/venv/bin/python /home/pi/DDNS-Raspberry/cloudflare_ddns.py >> /dev/null 2>&1
    
    # 如果希望開機時立即執行一次，可加入這行：
-   @reboot /path/to/ddns/venv/bin/python /path/to/ddns/cloudflare_ddns.py >> /dev/null 2>&1
+   @reboot /home/pi/DDNS-Raspberry/venv/bin/python /home/pi/DDNS-Raspberry/cloudflare_ddns.py >> /dev/null 2>&1
    ```
 
-## 使用 Systemd 進行進階管理 (可選)
+## 使用 Docker 部署 (推薦)
 
-如果您想將其作為系統服務管理（支援開機自啟、手動啟動/停止）：
+這也是最簡單的方式，您可以直接拉取打包好的映像檔。
 
-1. 編輯服務檔案：`sudo nano /etc/systemd/system/ddns.service`
-2. 填入以下內容 (修改路徑與用戶名)：
-   ```ini
-   [Unit]
-   Description=Cloudflare DDNS Service
-   After=network-online.target
-
-   [Service]
-   Type=oneshot
-   User=pi
-   WorkingDirectory=/path/to/ddns
-   ExecStart=/path/to/ddns/venv/bin/python /path/to/ddns/cloudflare_ddns.py
-
-   [Install]
-   WantedBy=multi-user.target
+1. **準備 `docker-compose.yml`**：
+   ```yaml
+   version: '3.8'
+   services:
+     ddns:
+       image: ghcr.io/${{ github.repository }}:main
+       container_name: cloudflare-ddns
+       restart: always
+       env_file: .env
+       volumes:
+         - ./ddns.log:/app/ddns.log
    ```
-3. 啟用服務：
+
+2. **建立 `.env` 檔案** 並填入資訊：
+   ```env
+   CF_API_TOKEN=您的_TOKEN
+   ZONE_ID=您的_ZONE_ID
+   RECORD_NAME=您的_域名
+   CHECK_INTERVAL=300
+   DOCKER_MODE=true
+   ```
+
+3. **啟動**：
    ```bash
-   sudo systemctl enable ddns.service
-   sudo systemctl start ddns.service
+   docker compose up -d
    ```
 
 ## 查看日誌
