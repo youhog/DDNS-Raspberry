@@ -12,7 +12,7 @@
 1. **複製專案到樹梅派**：
    ```bash
    git clone https://github.com/youhog/DDNS-Raspberry
-   cd ddns
+   cd DDNS-Raspberry
    ```
 
 2. **建立虛擬環境並安裝相依套件**：
