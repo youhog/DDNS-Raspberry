@@ -23,10 +23,14 @@ if [ -f "docker-compose.yml" ] && command -v docker >/dev/null 2>&1 && docker co
     echo "[2/3] 檢測到 Docker 部署，正在更新鏡像與重啟容器..."
     docker compose pull
     docker compose up -d
-    echo "[3/3] Docker 容器已重啟。"
+    echo "[3/3] Docker 容器已重啟。正在清理舊鏡像..."
+    docker image prune -f
 else
     # 虛擬環境 + Systemd 方式
-    echo "[2/3] 檢測到手動部署，正在更新 Python 依賴..."
+    echo "[2/3] 檢測到手動部署，正在清理快取與更新 Python 依賴..."
+    
+    # 清除舊的 Python 快取
+    find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
     
     if [ -d "venv" ]; then
         ./venv/bin/pip install --upgrade pip
