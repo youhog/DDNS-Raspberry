@@ -61,7 +61,7 @@
        restart: always
        env_file: .env
        volumes:
-         - ./ddns.log:/app/ddns.log
+         - ./logs:/app/logs
    ```
 
 2. **建立 `.env` 檔案** 並填入資訊：

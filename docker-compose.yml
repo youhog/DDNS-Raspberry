@@ -7,6 +7,6 @@ services:
     restart: always
     env_file:
       - .env
-    # 這裡我們手動掛載日誌到主機，方便查看
+    # 改為掛載資料夾，Docker 會自動建立它
     volumes:
-      - ./ddns.log:/app/ddns.log
+      - ./logs:/app/logs

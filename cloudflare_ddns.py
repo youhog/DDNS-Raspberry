@@ -11,11 +11,16 @@ load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # --- 設定區 ---
 CF_API_TOKEN = os.getenv("CF_API_TOKEN")
-# RECORD_NAME 現在支援 "domain:zone_id" 格式，多組請用逗號分隔
 RECORD_NAME = os.getenv("RECORD_NAME")
-LOG_FILE = os.path.join(BASE_DIR, "ddns.log")
+# 將日誌放在專屬資料夾中
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+LOG_FILE = os.path.join(LOG_DIR, "ddns.log")
 CHECK_INTERVAL = int(os.getenv("CHECK_INTERVAL", 300))
 DOCKER_MODE = os.getenv("DOCKER_MODE", "false").lower() == "true"
+
+# 自動建立日誌資料夾
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR, exist_ok=True)
 
 # --- 日誌設定 ---
 logging.basicConfig(
